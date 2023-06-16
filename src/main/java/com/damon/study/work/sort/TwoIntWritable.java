@@ -1,4 +1,4 @@
-package com.damon.study.work;
+package com.damon.study.work.sort;
 
 import org.apache.hadoop.io.WritableComparable;
 
@@ -17,15 +17,13 @@ public class TwoIntWritable implements WritableComparable<TwoIntWritable> {
         secondParam = 0;
     }
 
-   
-
     @Override
     public int compareTo(TwoIntWritable o) {
-        int i = Integer.compare(firstParam, o.firstParam);
+        int i = Integer.compare(firstParam,  o.firstParam);
         if (i != 0) {
             return i;
         } else {
-            return Integer.compare(secondParam, o.secondParam);
+            return Integer.compare(o.secondParam, secondParam);
         }
     }
 

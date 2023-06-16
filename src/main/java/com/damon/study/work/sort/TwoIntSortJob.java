@@ -1,6 +1,5 @@
-package com.damon.study.work;
+package com.damon.study.work.sort;
 
-import com.damon.study.mr.WordCountJob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -14,21 +13,28 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 /**
- * hadoop jar db_study-1.0-SNAPSHOT-jar-with-dependencies.jar com.damon.study.work.TwoIntSortJob  /test/sort.txt /out4
+ * 对指定的两列数据进行排序，首先对第一列按照从小到大排序，如果第一列相同，则需要根据第二列按照从大到小排序。
+ * "3 3", "3 1", "3 2","2 1", "2 2", "1 1"
+ * 希望得到的输出数据(数据之间是->分割)
+ * 1->1
+ * 2->2
+ * 2->1
+ * 3->3
+ * 3->2
+ * 3->1
+ * hadoop jar db_study-1.0-SNAPSHOT-jar-with-dependencies.jar com.damon.study.work.sort.TwoIntSortJob  /test/sort.txt /out4
  */
 public class TwoIntSortJob {
 
     public static void main(String[] args) {
-        String k3 = String.format("%d->%d", 1,
-              0);
+        String k3 = String.format("%d->%d", 1, 0);
         System.out.println(k3);
-        // if (args.length != 2) {
-        //     //  如果传递的参数不够，程序直接退出
-        //     System.exit(100);
-        // }
+        if (args.length != 2) {
+            //  如果传递的参数不够，程序直接退出
+            System.exit(100);
+        }
         String filePath = args[0];
         String outPath = args[1];
 
@@ -68,18 +74,16 @@ public class TwoIntSortJob {
     }
 
     public static class MyMapper extends Mapper<LongWritable, Text, TwoIntWritable, NullWritable> {
-        private TwoIntWritable key2 = new TwoIntWritable();
         private NullWritable value = NullWritable.get();
-        private final static IntWritable firstCol = new IntWritable();
-        private final static IntWritable secondCol = new IntWritable();
 
         @Override
         protected void map(LongWritable k1, Text v1, Context context) throws IOException, InterruptedException {
             System.out.println("<k1,v1>=<"+k1.get()+","+v1.toString()+">");
             String[] fields = v1.toString().split(" ");
             if (fields.length == 2) {
-                firstCol.set(Integer.parseInt(fields[0])); // 将第一列解析为整型数据，并存入FirstCol变量中。
-                secondCol.set(Integer.parseInt(fields[1])); // 将第二列解析为整型数据，并存入SecondCol变量中。
+                IntWritable firstCol = new IntWritable(Integer.parseInt(fields[0]));// 将第一列解析为整型数据，并存入FirstCol变量中。
+                IntWritable secondCol = new IntWritable(Integer.parseInt(fields[1]));// 将第二列解析为整型数据，并存入SecondCol变量中。
+                TwoIntWritable key2 = new TwoIntWritable();
                 key2.setFirstParam(firstCol.get()); // 将FirstCol变量封装到TwoIntWritable键中。
                 key2.setSecondParam(secondCol.get()); // 将SecondCol变量封装到TwoIntWritable键中。
                 //  把<k2,v2>写出去
@@ -96,8 +100,7 @@ public class TwoIntSortJob {
                 throws IOException, InterruptedException {
             // System.out.println("k2: "+ k2.getFirstParam() + "  " + k2.getSecondParam());
             //  组装k3,v3
-            String k3 = String.format("%d->%d", Math.min(k2.getFirstParam(), k2.getSecondParam()),
-                    Math.max(k2.getFirstParam(), k2.getSecondParam()));
+            String k3 = String.format("%d->%d", k2.getFirstParam(),  k2.getSecondParam());
             System.out.println("<k3,v3>=<"+k3+">");
             //  把结果写出去
             outputKey.set(k3);
