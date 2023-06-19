@@ -758,3 +758,96 @@ abc
 abc
 ```
 
+- head：取前N条数据
+
+最后来看一下head命令，head表示获取前N条数据，默认返回前10条，后面可以通过指定数字来控制返回的数据条数
+
+```
+[root@localhost ~]# cat num.txt 
+3
+2
+9
+10
+1
+[root@localhost ~]# head -3 num.txt 
+3
+2
+9
+```
+
+这样是没有什么意义的，我们想取前几条数据其实就是想取topN，这样直接获取的数据是没有排序的，所以可以把sort和head命令放在一块使用
+
+```
+[root@localhost ~]# sort -nr num.txt 
+10
+9
+3
+2
+1
+[root@localhost ~]# sort -nr num.txt  | head -3
+10
+9
+3
+```
+
+其实我们前面学习的这些命令都可以处理管道传输过来的数据。
+例如 cat和sort命令
+
+```
+[root@localhost ~]# cat num.txt  | sort -nr
+10
+9
+3
+2
+1
+```
+
+### 日期相关
+
+date命令默认获取系统当前时间
+
+```
+[root@localhost ~]# date
+Sun Mar 29 20:48:15 CST 2026
+```
+
+date +"%Y-%m-%d %H:%M:%S"
+注意：date后面的这些参数中间如果没有空格，可以省略双引号。
+
+```
+[root@localhost ~]# date +"%Y-%m-%d %H:%M:%S"
+2026-03-29 21:06:45
+```
+
+date +%s
+
+```
+[root@localhost ~]# date +%s
+1585487600
+```
+
+如果想要获取毫秒数呢？不好意思，date命令不支持
+注意了，虽然date命令没有直接支持获取毫秒数，但是从秒换算为毫秒也很简单啊，最直接粗暴的方式就是在秒数后面加3个0
+date +%s"000"
+
+```
+[root@localhost ~]# date +%s"000"
+1585487796000
+```
+
+获取昨天的日期，这个需求也需要使用–date参数实现
+date --date=“1 days ago”
+
+```
+[root@localhost ~]# date --date="1 days ago"
+Sat Mar 28 21:36:37 CST 2026
+```
+
+再对返回的结果进行格式化，只获取年月日
+date --date=“1 days ago” +%Y-%m-%d
+
+```
+[root@localhost ~]# date --date="1 days ago" +%Y-%m-%d
+2026-03-28
+```
+
